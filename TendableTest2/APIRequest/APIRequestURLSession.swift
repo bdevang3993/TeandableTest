@@ -87,6 +87,7 @@ class APIRequestURL {
     
     func postRequest(serviceName:String,httpMethod:String,andParams params: [String:Any],success successBlock: @escaping ((Bool) -> Void), andFailureBlock failedBlock:@escaping ((String) -> Void)){
         if isConnectedToInterNet() {
+            let strData = convertDictionaryToJSON(params)
             guard let url = URL(string: serviceName) else {
                 failedBlock(ErrorMessages.urlSide.value())
                 return
@@ -95,11 +96,11 @@ class APIRequestURL {
             request.httpMethod = "POST"// httpMethod
             request.setValue("application/json", forHTTPHeaderField: "Content-Type") // the request is JSON
             request.setValue("application/json", forHTTPHeaderField: "Accept") // the response expected to be in JSON format
-            if let jsonData = try? JSONSerialization.data(withJSONObject: params, options: .fragmentsAllowed) {
-                request.httpBody = jsonData
-            }
-           
-            //request.httpBody = jsonData
+//            if let jsonData = try? JSONSerialization.data(withJSONObject: params, options: .fragmentsAllowed) {
+//                request.httpBody = jsonData
+//            }
+            let postData = strData!.data(using: .utf8)
+            request.httpBody = postData
             URLSession.shared.dataTask(with: request) { (data, response, error) in
                 guard error == nil else {
                     failedBlock(error!.localizedDescription)
